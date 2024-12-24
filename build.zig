@@ -26,33 +26,33 @@ fn libcrypto(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.buil
         .Debug, .ReleaseSafe => lib.bundle_compiler_rt = true,
         else => lib.root_module.strip = true,
     }
-    lib.addIncludePath(b.path("include"));
-    lib.addIncludePath(b.path("."));
-    lib.addIncludePath(b.path("providers/common/include"));
-    lib.addIncludePath(b.path("providers/fips"));
-    lib.addIncludePath(b.path("providers/implementations/include"));
-    lib.addIncludePath(b.path("include_gen"));
-    // lib.defineCMacro("OPENSSL_NO_DEPRECATED", null);
-    lib.defineCMacro("OPENSSL_NO_ENGINE", null);
-    lib.defineCMacro("OPENSSL_NO_SRP", null);
-    lib.defineCMacro("OPENSSL_NO_UI_CONSOLE", null);
-    lib.defineCMacro("OPENSSL_NO_ASAN", null);
-    lib.defineCMacro("OPENSSL_NO_UBSAN", null);
-    lib.defineCMacro("OPENSSL_NO_ASM", null);
-    lib.defineCMacro("OPENSSL_NO_KTLS", null);
-    lib.defineCMacro("OPENSSL_NO_QUIC", null);
-    lib.defineCMacro("OPENSSL_NO_THREAD_POOL", null);
-    lib.defineCMacro("OPENSSL_NO_STDIO", null);
-    lib.defineCMacro("OPENSSL_NO_JITTER", null);
-    lib.defineCMacro("OSSL_PKEY_PARAM_RSA_DERIVE_FROM_PQ", "1");
+    lib.root_module.addIncludePath(b.path("include"));
+    lib.root_module.addIncludePath(b.path("."));
+    lib.root_module.addIncludePath(b.path("providers/common/include"));
+    lib.root_module.addIncludePath(b.path("providers/fips"));
+    lib.root_module.addIncludePath(b.path("providers/implementations/include"));
+    lib.root_module.addIncludePath(b.path("include_gen"));
+    // lib.root_module.addCMacro("OPENSSL_NO_DEPRECATED", "");
+    lib.root_module.addCMacro("OPENSSL_NO_ENGINE", "");
+    lib.root_module.addCMacro("OPENSSL_NO_SRP", "");
+    lib.root_module.addCMacro("OPENSSL_NO_UI_CONSOLE", "");
+    lib.root_module.addCMacro("OPENSSL_NO_ASAN", "");
+    lib.root_module.addCMacro("OPENSSL_NO_UBSAN", "");
+    lib.root_module.addCMacro("OPENSSL_NO_ASM", "");
+    lib.root_module.addCMacro("OPENSSL_NO_KTLS", "");
+    lib.root_module.addCMacro("OPENSSL_NO_QUIC", "");
+    lib.root_module.addCMacro("OPENSSL_NO_THREAD_POOL", "");
+    lib.root_module.addCMacro("OPENSSL_NO_STDIO", "");
+    lib.root_module.addCMacro("OPENSSL_NO_JITTER", "");
+    lib.root_module.addCMacro("OSSL_PKEY_PARAM_RSA_DERIVE_FROM_PQ", "1");
     if (lib.rootModuleTarget().isMinGW())
-        lib.defineCMacro("NOCRYPT", "1");
+        lib.root_module.addCMacro("NOCRYPT", "1");
     if (lib.rootModuleTarget().isDarwin())
         // CommonCrypto
-        lib.linkFramework("CoreServices");
+        lib.root_module.linkFramework("CoreServices", .{});
     if (lib.rootModuleTarget().cpu.arch.isRISCV())
-        lib.defineCMacro("__NR_riscv_hwprobe", "(__NR_arch_specific_syscall + 14)");
-    lib.addCSourceFiles(.{
+        lib.root_module.addCMacro("__NR_riscv_hwprobe", "(__NR_arch_specific_syscall + 14)");
+    lib.root_module.addCSourceFiles(.{
         .files = switch (lib.rootModuleTarget().cpu.arch) {
             .arm, .aarch64 => &.{
                 "crypto/armcap.c",
@@ -88,7 +88,7 @@ fn libcrypto(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.buil
             "-Wno-int-conversion",
         },
     });
-    lib.addCSourceFiles(.{
+    lib.root_module.addCSourceFiles(.{
         .files = &.{
             // "crypto/LPdir_nyi.c",
             // "crypto/LPdir_unix.c",
@@ -885,7 +885,7 @@ fn libcrypto(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.buil
         },
         .flags = cflags,
     });
-    lib.linkLibrary(libprovider(b, target, optimize));
+    lib.root_module.linkLibrary(libprovider(b, target, optimize));
     lib.linkLibC();
     return lib;
 }
@@ -901,21 +901,21 @@ fn libssl(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.builtin
         .Debug, .ReleaseSafe => lib.bundle_compiler_rt = true,
         else => lib.root_module.strip = true,
     }
-    lib.addIncludePath(b.path("include"));
-    lib.addIncludePath(b.path("include_gen"));
-    lib.defineCMacro("OPENSSL_NO_DEPRECATED", null);
-    lib.defineCMacro("OPENSSL_NO_ENGINE", null);
-    lib.defineCMacro("OPENSSL_NO_SRP", null);
-    lib.defineCMacro("OPENSSL_NO_UI_CONSOLE", null);
-    lib.defineCMacro("OPENSSL_NO_ASAN", null);
-    lib.defineCMacro("OPENSSL_NO_ASM", null);
-    lib.defineCMacro("OPENSSL_NO_KTLS", null);
-    lib.defineCMacro("OPENSSL_NO_QUIC", null);
-    lib.defineCMacro("OPENSSL_NO_QLOG", null);
-    lib.defineCMacro("OSSL_LIBSSL_RECORD_LAYER_PARAM_HS_PADDING", null);
+    lib.root_module.addIncludePath(b.path("include"));
+    lib.root_module.addIncludePath(b.path("include_gen"));
+    lib.root_module.addCMacro("OPENSSL_NO_DEPRECATED", "");
+    lib.root_module.addCMacro("OPENSSL_NO_ENGINE", "");
+    lib.root_module.addCMacro("OPENSSL_NO_SRP", "");
+    lib.root_module.addCMacro("OPENSSL_NO_UI_CONSOLE", "");
+    lib.root_module.addCMacro("OPENSSL_NO_ASAN", "");
+    lib.root_module.addCMacro("OPENSSL_NO_ASM", "");
+    lib.root_module.addCMacro("OPENSSL_NO_KTLS", "");
+    lib.root_module.addCMacro("OPENSSL_NO_QUIC", "");
+    lib.root_module.addCMacro("OPENSSL_NO_QLOG", "");
+    lib.root_module.addCMacro("OSSL_LIBSSL_RECORD_LAYER_PARAM_HS_PADDING", "");
     if (lib.rootModuleTarget().isMinGW())
-        lib.defineCMacro("NOCRYPT", "1");
-    lib.addCSourceFiles(.{
+        lib.root_module.addCMacro("NOCRYPT", "1");
+    lib.root_module.addCSourceFiles(.{
         .files = &.{
             "ssl/bio_ssl.c",
             "ssl/d1_lib.c",
@@ -1011,32 +1011,32 @@ fn libprovider(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.bu
         .target = target,
         .optimize = optimize,
     });
-    lib.addIncludePath(b.path("include"));
-    lib.addIncludePath(b.path("."));
-    lib.addIncludePath(b.path("providers/common/include"));
-    lib.addIncludePath(b.path("providers/fips/include"));
-    lib.addIncludePath(b.path("providers/implementations/include"));
-    lib.addIncludePath(b.path("include_gen"));
-    lib.addIncludePath(b.path("crypto"));
-    lib.defineCMacro("OPENSSL_NO_DEPRECATED", null);
-    lib.defineCMacro("OPENSSL_NO_ENGINE", null);
-    lib.defineCMacro("OPENSSL_NO_SRP", null);
-    lib.defineCMacro("OPENSSL_NO_UI_CONSOLE", null);
-    lib.defineCMacro("OPENSSL_NO_ASAN", null);
-    lib.defineCMacro("OPENSSL_NO_ASM", null);
-    lib.defineCMacro("OPENSSL_NO_KTLS", null);
-    lib.defineCMacro("OPENSSL_NO_QUIC", null);
-    lib.defineCMacro("OPENSSL_CPUID_OBJ", null);
-    lib.defineCMacro("OSSL_RAND_PARAM_GENERATE", null);
+    lib.root_module.addIncludePath(b.path("include"));
+    lib.root_module.addIncludePath(b.path("."));
+    lib.root_module.addIncludePath(b.path("providers/common/include"));
+    lib.root_module.addIncludePath(b.path("providers/fips/include"));
+    lib.root_module.addIncludePath(b.path("providers/implementations/include"));
+    lib.root_module.addIncludePath(b.path("include_gen"));
+    lib.root_module.addIncludePath(b.path("crypto"));
+    lib.root_module.addCMacro("OPENSSL_NO_DEPRECATED", "");
+    lib.root_module.addCMacro("OPENSSL_NO_ENGINE", "");
+    lib.root_module.addCMacro("OPENSSL_NO_SRP", "");
+    lib.root_module.addCMacro("OPENSSL_NO_UI_CONSOLE", "");
+    lib.root_module.addCMacro("OPENSSL_NO_ASAN", "");
+    lib.root_module.addCMacro("OPENSSL_NO_ASM", "");
+    lib.root_module.addCMacro("OPENSSL_NO_KTLS", "");
+    lib.root_module.addCMacro("OPENSSL_NO_QUIC", "");
+    lib.root_module.addCMacro("OPENSSL_CPUID_OBJ", "");
+    lib.root_module.addCMacro("OSSL_RAND_PARAM_GENERATE", "");
     if (lib.rootModuleTarget().isDarwin()) {
         // CommonCrypto
-        lib.linkFramework("CoreServices");
-        lib.defineCMacro("OPENSSL_SYS_MACOSX", "1");
-        lib.addSystemIncludePath(.{ .cwd_relative = "/usr/include" });
+        lib.root_module.linkFramework("CoreServices", .{});
+        lib.root_module.addCMacro("OPENSSL_SYS_MACOSX", "1");
+        lib.root_module.addSystemIncludePath(.{ .cwd_relative = "/usr/include" });
     }
     if (lib.rootModuleTarget().isMinGW())
-        lib.defineCMacro("NOCRYPT", "1");
-    lib.addCSourceFiles(.{
+        lib.root_module.addCMacro("NOCRYPT", "1");
+    lib.root_module.addCSourceFiles(.{
         .files = switch (lib.rootModuleTarget().cpu.arch) {
             .x86, .x86_64 => &.{
                 "providers/implementations/rands/seeding/rand_cpu_x86.c",
@@ -1048,7 +1048,7 @@ fn libprovider(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.bu
         },
         .flags = cflags,
     });
-    lib.addCSourceFiles(.{
+    lib.root_module.addCSourceFiles(.{
         .files = &.{
             "include_gen/der/der_sm2_gen.c",
             "include_gen/der/der_digests_gen.c",
@@ -1237,7 +1237,7 @@ fn libprovider(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.bu
                 "providers/implementations/rands/seeding/rand_unix.c",
             // "providers/implementations/rands/seeding/rand_vms.c",
             // "providers/implementations/rands/seeding/rand_vxworks.c",
-            "providers/implementations/rands/test_rng.c",
+            // "providers/implementations/rands/test_rng.c",
             // "providers/implementations/signature/dsa_sig.c",
             // "providers/implementations/signature/ecdsa_sig.c",
             // "providers/implementations/signature/eddsa_sig.c",
